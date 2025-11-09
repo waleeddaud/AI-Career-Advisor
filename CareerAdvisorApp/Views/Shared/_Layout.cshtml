@@ -1,7 +1,11 @@
 ﻿@{
     string? currentPath = Context.Request.Path.Value?.ToLower();
-    bool hideHeader = currentPath.Contains("/account/login") || currentPath.Contains("/account/register");
-    bool hideFooter = hideHeader;
+    bool hideHeader = false;
+    bool hideFooter = false;
+    if(currentPath != null){
+        hideHeader = currentPath.Contains("/account/login") || currentPath.Contains("/account/register");
+        hideFooter = hideHeader;
+    }
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -21,7 +25,6 @@
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 mx-3">
                 <div class="container-fluid">
                     <div style="width:48px; height:48px;">
-                    <!-- SVG logo -->
                     <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_6_319)">
                         <path
@@ -58,8 +61,7 @@
             
     }
     <div class="container">
-        <main role="main" >
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-5">
             @RenderBody()
         </main> 
     </div>
