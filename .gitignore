@@ -5,7 +5,7 @@ out/
 publish/
 
 # ASP.NET Core
-wwwroot/lib/        
+CareerAdvisorApp/wwwroot/lib/      
 *.db                
 *.log              
 
