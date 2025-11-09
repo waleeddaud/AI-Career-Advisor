@@ -1,0 +1,19 @@
+# Build results
+bin/
+obj/
+out/
+publish/
+
+# ASP.NET Core
+wwwroot/lib/        
+*.db                
+*.log              
+
+# VS Code
+.vscode/
+
+# Other temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
