@@ -2,23 +2,23 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-@* <ul class="navbar-nav"> *@
 @if (SignInManager.IsSignedIn(User))
 {
-    <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity?.Name!</a>
-    </li>
-    <li class="nav-item">
-        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-        </form>
-    </li>
+    <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+        @User.Identity?.Name!
+    </a>
+    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+        <button type="submit" class="nav-link btn" style="background-color: #4a6f78; color: white; border-radius: 0.375rem;">Logout</button>
+    </form>
 }
 else
 {
     <div class="d-flex gap-2">
-        <a class="nav-link text-white btn btn-primary" asp-area="Identity" asp-page="/Account/Register">Sign Up</a>
-        <a class="nav-link text-dark btn btn-light text-dark border" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        <a class="nav-link btn" asp-area="Identity" asp-page="/Account/Register" style="background-color: #4a6f78; color: white; border-radius: 0.375rem;">
+            Sign Up
+        </a>
+        <a class="nav-link btn" asp-area="Identity" asp-page="/Account/Login" style="background-color: #f8f9fa; color: #4a6f78; border: 1px solid #4a6f78; border-radius: 0.375rem;">
+            Login
+        </a>
     </div>
 }
-@* </ul> *@
