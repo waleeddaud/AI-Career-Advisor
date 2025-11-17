@@ -1,0 +1,148 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Career Details Form";
+}
+
+<style>
+    body {
+        background-color: #8fbec2 !important;
+    }
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .page-title {
+        color: white;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .form-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2.5rem;
+    }
+    .form-card h3 {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 2rem;
+    }
+    .form-label {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #8fbec2;
+        box-shadow: 0 0 0 0.2rem rgba(143, 190, 194, 0.25);
+    }
+    .btn-submit {
+        background: linear-gradient(135deg, #8fbec2 0%, #78a9ad 100%);
+        border: none;
+        border-radius: 0.5rem;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        color: white;
+        font-size: 1.05rem;
+        transition: all 0.3s ease;
+    }
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(143, 190, 194, 0.4);
+    }
+</style>
+
+<div class="container mt-4 mb-5 form-container" style="margin-bottom: 150px !important;">
+    <h2 class="text-center mb-5 page-title">Career Details Form</h2>
+    <div class="card form-card shadow-lg border-0">
+        <h3 class="text-center">Career Details</h3>
+
+        <form method="post" asp-action="GeneratePlan">
+            <div class="mb-4">
+                <label class="form-label">Education Level</label>
+                <select class="form-select" name="EducationLevel" required>
+                    <option value="" disabled selected>Select your education</option>
+                    <option>Intermediate / A-Levels</option>
+                    <option>Bachelor's Degree</option>
+                    <option>Master's Degree</option>
+                    <option>Diploma / Certification</option>
+                    <option>Self-Taught</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Skills</label>
+                <input type="text" class="form-control" name="Skills" placeholder="e.g. Python, Communication, Leadership" required />
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Interests</label>
+                <input type="text" class="form-control" name="Interests" placeholder="e.g. Software Development, Business, Design" required />
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Career Goals</label>
+                <textarea class="form-control" rows="4" name="CareerGoals" placeholder="Your career ambitions..." required></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Years of Experience</label>
+                <select class="form-select" name="Experience">
+                    <option value="" disabled selected>Select</option>
+                    <option>No Experience</option>
+                    <option>Less than 1 year</option>
+                    <option>1 - 3 years</option>
+                    <option>3 - 5 years</option>
+                    <option>5+ years</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Preferred Industry</label>
+                <select class="form-select" name="Industry">
+                    <option disabled selected>Select industry</option>
+                    <option>Technology</option>
+                    <option>Healthcare</option>
+                    <option>Finance</option>
+                    <option>Education</option>
+                    <option>Design</option>
+                    <option>Business & Marketing</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Preferred Work Style</label>
+                <select class="form-select" name="WorkStyle">
+                    <option disabled selected>Select option</option>
+                    <option>Full-time Job</option>
+                    <option>Remote Work</option>
+                    <option>Freelancing</option>
+                    <option>Entrepreneurship / Startups</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Salary Expectation (Monthly)</label>
+                <input type="text" class="form-control" name="Salary" placeholder="e.g. $1000 - $2000" />
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Career Goal Timeline</label>
+                <select class="form-select" name="Timeline">
+                    <option disabled selected>Select timeline</option>
+                    <option>6 Months</option>
+                    <option>1 Year</option>
+                    <option>3 Years</option>
+                    <option>5 Years</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-submit w-100 mt-4">Generate Career Plan</button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,174 @@
+@{
+    ViewData["Title"] = "Saved Plans";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    body {
+        background-color: #8fbec2 !important;
+    }
+    .plans-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    .page-title {
+        color: white;
+        font-weight: 700;
+        font-size: 2.5rem;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        margin-bottom: 0.5rem;
+    }
+    .page-subtitle {
+        color: rgba(255,255,255,0.9);
+        font-size: 1.1rem;
+    }
+    .plan-card {
+        background: white;
+        height: 100%;
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+    }
+    .plan-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 35px rgba(0,0,0,0.2) !important;
+    }
+    .card-body {
+        padding: 2rem;
+    }
+    .plan-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #8fbec2 0%, #78a9ad 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+    .plan-icon i {
+        color: white;
+        font-size: 1.5rem;
+    }
+    .plan-title {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+    .plan-date {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .plan-date i {
+        color: #8fbec2;
+    }
+    .card-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    .btn-view {
+        background: linear-gradient(135deg, #8fbec2 0%, #78a9ad 100%);
+        border: none;
+        color: white;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        flex: 1;
+        transition: all 0.3s ease;
+    }
+    .btn-view:hover {
+        background: linear-gradient(135deg, #78a9ad 0%, #6a9599 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(143, 190, 194, 0.4);
+    }
+    .btn-delete {
+        background-color: #ffffff;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-delete:hover {
+        background-color: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .empty-state i {
+        font-size: 4rem;
+        color: #8fbec2;
+        margin-bottom: 1.5rem;
+    }
+    .empty-state h4 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    .empty-state p {
+        color: #6c757d;
+    }
+</style>
+
+<div class="container mt-5 plans-container" style="margin-bottom: 150px;">
+    <div class="page-header">
+        <h1 class="page-title">My Saved Career Plans</h1>
+        <p class="page-subtitle">Track and manage your personalized career roadmaps</p>
+    </div>
+
+    <div class="row g-4">
+        @if(Model != null && Model?.Any())
+        {
+            @foreach (var plan in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card plan-card shadow rounded-4">
+                        <div class="card-body">
+                            <div class="plan-icon">
+                                <i class="bi bi-briefcase-fill"></i>
+                            </div>
+                            <h5 class="plan-title">@plan.Title</h5>
+                            <p class="plan-date">
+                                <i class="bi bi-calendar-check"></i>
+                                @plan.CreatedDate.ToString("MMMM dd, yyyy")
+                            </p>
+                            <div class="card-actions">
+                                <a asp-action="ViewPlan" asp-route-id="@plan.Id" class="btn btn-view">
+                                    <i class="bi bi-eye me-1"></i> View Plan
+                                </a>
+                                <a asp-action="DeletePlan" asp-route-id="@plan.Id" class="btn btn-delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {  
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="bi bi-folder-x"></i>
+                    <h4>No Saved Plans Yet</h4>
+                    <p>Start creating your career roadmap to see your plans here</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

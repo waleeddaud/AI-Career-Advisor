@@ -1,0 +1,107 @@
+@{
+    ViewData["Title"] = "Career Advisor Chat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    body {
+        background-color: #8fbec2 !important;
+    }
+    .chat-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .chat-card {
+        background: white;
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+    .chat-header {
+        background: linear-gradient(135deg, #8fbec2 0%, #78a9ad 100%);
+        color: white;
+        padding: 1.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    #chatWindow {
+        background: #f8f9fa;
+        height: 450px;
+        overflow-y: auto;
+        padding: 1.5rem;
+    }
+    .user-message .badge {
+        background-color: #8fbec2 !important;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem 1rem 0 1rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+    .ai-message .badge {
+        background-color: #e9ecef !important;
+        color: #212529 !important;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem 1rem 1rem 0;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+    .chat-footer {
+        background: white;
+        padding: 1.5rem;
+        border-top: 1px solid #dee2e6;
+    }
+    .chat-input {
+        border: 2px solid #e9ecef;
+        border-radius: 2rem;
+        padding: 0.75rem 1.25rem;
+    }
+    .chat-input:focus {
+        border-color: #8fbec2;
+        box-shadow: 0 0 0 0.2rem rgba(143, 190, 194, 0.25);
+    }
+    .btn-send {
+        background-color: #8fbec2;
+        border: none;
+        border-radius: 2rem;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: white;
+    }
+    .btn-send:hover {
+        background-color: #78a9ad;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(143, 190, 194, 0.3);
+    }
+</style>
+
+<div class="container mt-5 chat-container" style="margin-bottom: 150px;">
+    <div class="card chat-card shadow-lg border-0">
+        <div class="chat-header">AI Career Advisor Chat Mode</div>
+
+        <div id="chatWindow">
+            @if(Model != null && Model?.Messages != null){
+                @foreach (var msg in Model.Messages)
+                {
+                    if (msg.IsUser)
+                    {
+                        <div class="text-end mb-3 user-message">
+                            <span class="badge">@msg.Text</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-start mb-3 ai-message">
+                            <span class="badge">@msg.Text</span>
+                        </div>
+                    }
+                }
+            }
+        </div>
+
+        <div class="chat-footer">
+            <form class="w-100 d-flex gap-2" asp-action="SendMessage" method="post">
+                <input type="text" name="Message" class="form-control chat-input flex-grow-1" placeholder="Type your message..." required />
+                <button class="btn btn-send">Send</button>
+            </form>
+        </div>
+    </div>
+</div>

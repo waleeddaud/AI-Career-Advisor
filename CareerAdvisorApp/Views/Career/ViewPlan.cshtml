@@ -1,0 +1,137 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "AI Career Plan";
+}
+
+<style>
+    body {
+        background-color: #8fbec2 !important;
+    }
+    .page-title {
+        color: white;
+        font-weight: 700;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .plan-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .plan-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 3rem;
+    }
+    .error-alert {
+        background: white;
+        border-left: 4px solid #dc3545;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .error-icon {
+        color: #dc3545;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    .retry-btn {
+        background: linear-gradient(135deg, #8fbec2 0%, #78a9ad 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+    .retry-btn:hover {
+        background: linear-gradient(135deg, #78a9ad 0%, #6a9599 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(143, 190, 194, 0.4);
+    }
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .btn-download {
+        background: linear-gradient(135deg, #8fbec2 0%, #78a9ad 100%);
+        border: none;
+        color: white;
+        padding: 0.85rem 2.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(143, 190, 194, 0.3);
+    }
+    .btn-download:hover {
+        background: linear-gradient(135deg, #78a9ad 0%, #6a9599 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(143, 190, 194, 0.5);
+        color: white;
+    }
+    .btn-download i {
+        font-size: 1.1rem;
+    }
+</style>
+
+<div class="container mt-5 plan-container" style="margin-bottom: 150px;">
+    <h2 class="text-center mb-5 page-title">AI-Generated Career Plan</h2>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="error-alert text-center">
+            <i class="bi bi-exclamation-triangle-fill error-icon"></i>
+            <h4 class="text-danger mb-3">Oops! Something went wrong</h4>
+            <p class="text-muted mb-0">@ViewBag.ErrorMessage</p>
+            <button onclick="location.reload()" class="btn retry-btn">
+                <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+            </button>
+        </div>
+    }
+    else if (ViewBag.HtmlPlan != null)
+    {
+        <div class="action-buttons">
+            <button onclick="downloadPDF()" class="btn btn-download">
+                <i class="bi bi-file-earmark-pdf me-2"></i>Download PDF
+            </button>
+        </div>
+        
+        <div class="card plan-card shadow-lg border-0" id="career-plan-content">
+            @Html.Raw(ViewBag.HtmlPlan)
+        </div>
+    }
+    else
+    {
+        <div class="error-alert text-center">
+            <i class="bi bi-hourglass-split error-icon text-warning"></i>
+            <h4 class="text-warning mb-3">Loading Your Career Plan</h4>
+            <p class="text-muted">Please wait while we generate your personalized career roadmap...</p>
+        </div>
+    }
+    
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    function downloadPDF() {
+        const element = document.getElementById('career-plan-content');
+        const opt = {
+            margin: 1,
+            filename: 'Career-Plan-' + new Date().toISOString().split('T')[0] + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        
+        const btn = event.target.closest('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Generating PDF...';
+        btn.disabled = true;
+        
+        html2pdf().set(opt).from(element).save().then(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    }
+</script>
