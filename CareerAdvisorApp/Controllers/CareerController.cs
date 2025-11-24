@@ -7,6 +7,7 @@ using CareerAdvisorApp.Models.Interfaces;
 using Google.GenAI;
 using Google.GenAI.Types;
 using Markdig;
+using System.Threading.Tasks;
 
 namespace CareerAdvisorApp.Controllers;
 public class CareerController : Controller
@@ -29,16 +30,18 @@ public class CareerController : Controller
         return View();
     }
     [Authorize]
-    public IActionResult GeneratePlan(CareerDetails careerDetails)
+    public async Task<IActionResult> GeneratePlan(CareerDetails careerDetails)
     {   
-        string userPrompt = $"Create a detailed career development plan for an individual with the following details: Education Level: {careerDetails.EducationLevel}, Skills: {careerDetails.Skills}, Interests: {careerDetails.Interests}, Career Goals: {careerDetails.CareerGoals}, Experience: {careerDetails.Experience}, Industry: {careerDetails.Industry}, Work Style: {careerDetails.WorkStyle}, Salary Expectation: {careerDetails.Salary}, Timeline: {careerDetails.Timeline}. The plan should include recommended steps, resources, and a timeline to achieve their career goals.";
-        Console.WriteLine("Generated User Prompt: " + userPrompt);
-        return RedirectToAction("ViewPlan", new { TextToDisplay = userPrompt });
+        string? plan = await _careerService.GenerateCareerPlanAsync(careerDetails);
+        string? userId = _userManager.GetUserId(User);
+        int career_id = _careerService.SaveCareerPlan(plan, userId);
+        return RedirectToAction("ViewPlan", new {career_id = career_id} );
     }
 
     [Authorize]
-    public async Task<IActionResult> ViewPlan(string TextToDisplay = "Some Data to display")
+    public async Task<IActionResult> ViewPlan(int career_id)
     {
+        string? TextToDisplay = _careerService.GetCareerPlanById(career_id);
         try
         {
             var pipeline = new MarkdownPipelineBuilder()
@@ -58,57 +61,6 @@ public class CareerController : Controller
             ViewBag.ErrorMessage = "An error occurred while displaying your career plan. Please try again later.";
             return View();
         }
-        //     // var client = new Client(apiKey: "AIzaSyAH2Xs9_-f9mlxDvKKcA8DjPtOL1YCIry4");
-        //     var client = new Client(apiKey: "AIzaSyC7E2AYIsmOPXx6eRhQ5OVel8V8aq5AZVw");
-            
-        //     // Retry logic for overloaded API
-        //     int maxRetries = 3;
-        //     int retryDelay = 2000; // 2 seconds
-        //     Exception? lastException = null;
-            
-        //     for (int attempt = 0; attempt < maxRetries; attempt++)
-        //     {
-        //         try
-        //         {
-        //             var result = await client.Models.GenerateContentAsync(
-        //                 model: "gemini-2.5-flash",
-        //                 contents: userPrompt
-        //             );
-                    
-        //             var aiResponse = result?.Candidates?[0].Content?.Parts?[0].Text ?? "No response from AI";
-        //             Console.WriteLine("AI Response: " + aiResponse);
-                    
-        //             var pipeline = new MarkdownPipelineBuilder()
-        //                 .UseAdvancedExtensions()
-        //                 .Build();
-
-        //             string htmlContent = Markdown.ToHtml(aiResponse, pipeline);
-        //             ViewBag.HtmlPlan = htmlContent;
-        //             ViewBag.ErrorMessage = null;
-
-        //             return View();
-        //         }
-        //         catch (Exception ex) when (ex.Message.Contains("overloaded") && attempt < maxRetries - 1)
-        //         {
-        //             lastException = ex;
-        //             Console.WriteLine($"ex.Message: {ex.Message}");
-        //             Console.WriteLine($"API overloaded, retrying in {retryDelay}ms... (Attempt {attempt + 1}/{maxRetries})");
-        //             await Task.Delay(retryDelay);
-        //             retryDelay *= 2;  
-        //         }
-        //     }
-            
-        //     throw lastException ?? new Exception("API request failed");
-        // }
-        // catch (Exception ex)
-        // {
-        //     Console.WriteLine($"Error generating plan: {ex.Message}");
-        //     ViewBag.HtmlPlan = null;
-        //     ViewBag.ErrorMessage = ex.Message.Contains("overloaded") 
-        //         ? "The AI service is currently experiencing high demand. Please try again in a few moments."
-        //         : "An error occurred while generating your career plan. Please try again later.";
-        //     return View();
-        // }
     }
     [Authorize]
     public IActionResult Chat()

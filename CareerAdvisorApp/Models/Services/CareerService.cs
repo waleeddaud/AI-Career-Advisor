@@ -9,9 +9,11 @@ namespace CareerAdvisorApp.Models.Services;
 public class CareerService : ICareerService
 {
     private readonly IConfiguration _configuration;
+    private readonly string? _connectionString;
     public CareerService(IConfiguration configuration)
     {
         _configuration = configuration;
+        _connectionString = _configuration.GetConnectionString("DefaultConnection");
     }
     public string createPrompt(CareerDetails careerDetails)
     {
@@ -53,11 +55,18 @@ public class CareerService : ICareerService
         
         throw lastException ?? new Exception("API request failed");
     }
-    public void SaveCareerPlan(string careerPlan, int userId)
+    public int SaveCareerPlan(string? careerPlan, string? userId)
     {   
-        string? connectionString = _configuration.GetConnectionString("DefaultConnection");
-        using var connection = new SqlConnection(connectionString);
-        var sql = "INSERT INTO CareerPlan (UserId, PlanDetails) VALUES (@UserId, @PlanDetails)";
-        connection.Execute(sql, new { UserId = userId, PlanDetails = careerPlan });
+        using var connection = new SqlConnection(_connectionString);
+        var sql = "INSERT INTO CareerPlan (UserId, PlanDetails) Output Inserted.Id VALUES (@UserId, @PlanDetails)";
+        int r = connection.ExecuteScalar<int>(sql, new { UserId = userId, PlanDetails = careerPlan });
+        return r;
+    }
+    public string GetCareerPlanById(int careerPlanId)
+    {
+        using SqlConnection conn = new SqlConnection(_connectionString);
+        string sql = "SELECT PlanDetails FROM CareerPlan WHERE Id = @Id";
+        string? planDetails = conn.QuerySingleOrDefault<string>(sql, new { Id = careerPlanId });
+        return planDetails ?? "No plan found."; 
     }
 }

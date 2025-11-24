@@ -54,16 +54,64 @@
     }
     .btn-submit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(143, 190, 194, 0.4);
+        box-shadow: 0 6px 20px rgba(151, 165, 166, 0.4);
+    }
+    #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(142, 159, 161, 0.5);
+        z-index: 9999;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .overlay-content {
+        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .spinner {
+        border: 8px solid rgba(255, 255, 255, 0.3);
+        border-top: 8px solid #ffffff;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+        flex-shrink: 0;
+    }
+
+    .loading-text {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
+
+<div id="loadingOverlay">
+    <div class="overlay-content">
+        <div class="spinner"></div>
+        <div class="loading-text">Planning your career...</div>
+    </div>
+</div>
 
 <div class="container mt-4 mb-5 form-container" style="margin-bottom: 150px !important;">
     <h2 class="text-center mb-5 page-title">Career Details Form</h2>
     <div class="card form-card shadow-lg border-0">
         <h3 class="text-center">Career Details</h3>
 
-        <form method="post" asp-action="GeneratePlan">
+        <form id="careerForm" method="post" asp-action="GeneratePlan">
             <div class="mb-4">
                 <label class="form-label" asp-for="EducationLevel"></label>
                 <select class="form-select" asp-for="EducationLevel" required>
@@ -148,3 +196,14 @@
 
     </div>
 </div>
+
+<script>
+    // When the page loads
+    document.addEventListener("DOMContentLoaded", function() {
+        var form = document.getElementById("careerForm");
+        form.addEventListener("submit", function() {
+            // Show the overlay when form is submitted
+            document.getElementById("loadingOverlay").style.display = "flex";
+        });
+    });
+</script>
