@@ -1,3 +1,4 @@
+@model CareerAdvisorApp.Models.CareerDetails
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Career Details Form";
@@ -64,8 +65,8 @@
 
         <form method="post" asp-action="GeneratePlan">
             <div class="mb-4">
-                <label class="form-label">Education Level</label>
-                <select class="form-select" name="EducationLevel" required>
+                <label class="form-label" asp-for="EducationLevel"></label>
+                <select class="form-select" asp-for="EducationLevel" required>
                     <option value="" disabled selected>Select your education</option>
                     <option>Intermediate / A-Levels</option>
                     <option>Bachelor's Degree</option>
@@ -76,23 +77,23 @@
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Skills</label>
-                <input type="text" class="form-control" name="Skills" placeholder="e.g. Python, Communication, Leadership" required />
+                <label class="form-label" asp-for="Skills"></label>
+                <input class="form-control" asp-for="Skills" placeholder="e.g. Python, Communication, Leadership" required />
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Interests</label>
-                <input type="text" class="form-control" name="Interests" placeholder="e.g. Software Development, Business, Design" required />
+                <label class="form-label" asp-for="Interests"></label>
+                <input class="form-control" asp-for="Interests" placeholder="e.g. Software Development, Business, Design" required />
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Career Goals</label>
-                <textarea class="form-control" rows="4" name="CareerGoals" placeholder="Your career ambitions..." required></textarea>
+                <label class="form-label" asp-for="CareerGoals"></label>
+                <textarea class="form-control" rows="4" asp-for="CareerGoals" placeholder="Your career ambitions..." required></textarea>
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Years of Experience</label>
-                <select class="form-select" name="Experience">
+                <label class="form-label" asp-for="Experience"></label>
+                <select class="form-select" asp-for="Experience">
                     <option value="" disabled selected>Select</option>
                     <option>No Experience</option>
                     <option>Less than 1 year</option>
@@ -103,8 +104,8 @@
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Preferred Industry</label>
-                <select class="form-select" name="Industry">
+                <label class="form-label" asp-for="Industry"></label>
+                <select class="form-select" asp-for="Industry">
                     <option disabled selected>Select industry</option>
                     <option>Technology</option>
                     <option>Healthcare</option>
@@ -116,8 +117,8 @@
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Preferred Work Style</label>
-                <select class="form-select" name="WorkStyle">
+                <label class="form-label" asp-for="WorkStyle"></label>
+                <select class="form-select" asp-for="WorkStyle">
                     <option disabled selected>Select option</option>
                     <option>Full-time Job</option>
                     <option>Remote Work</option>
@@ -127,13 +128,13 @@
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Salary Expectation (Monthly)</label>
-                <input type="text" class="form-control" name="Salary" placeholder="e.g. $1000 - $2000" />
+                <label class="form-label" asp-for="Salary"></label>
+                <input class="form-control" asp-for="Salary" placeholder="e.g. $1000 - $2000" />
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Career Goal Timeline</label>
-                <select class="form-select" name="Timeline">
+                <label class="form-label" asp-for="Timeline"></label>
+                <select class="form-select" asp-for="Timeline">
                     <option disabled selected>Select timeline</option>
                     <option>6 Months</option>
                     <option>1 Year</option>
@@ -144,5 +145,6 @@
 
             <button type="submit" class="btn btn-submit w-100 mt-4">Generate Career Plan</button>
         </form>
+
     </div>
 </div>
