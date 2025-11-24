@@ -6,6 +6,7 @@ publish/
 
 # ASP.NET Core
 CareerAdvisorApp/wwwroot/lib/      
+CareerAdvisorApp/appsettings.json
 *.db                
 *.log              
 
