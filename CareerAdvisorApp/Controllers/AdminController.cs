@@ -15,7 +15,7 @@ public class AdminController : Controller
         _userManager = userManager;
     }
     
-    [Authorize]
+    [Authorize(Policy="AdminOnly")]
     public IActionResult Index()
     {
         return View();

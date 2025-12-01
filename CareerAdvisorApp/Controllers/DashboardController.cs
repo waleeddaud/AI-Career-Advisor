@@ -14,7 +14,7 @@ public class DashboardController : Controller
         _userManager = userManager;
     }
     
-    [Authorize]
+    [Authorize(Policy="UserOnly")]
     public IActionResult Index()
     {
         var user = _userManager.GetUserAsync(User).Result;
