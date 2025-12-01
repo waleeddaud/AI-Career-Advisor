@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using CareerAdvisorApp.Models.Interfaces;
 using CareerAdvisorApp.Models.Services;
 using CareerAdvisorApp.Data;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+Console.WriteLine("Starting builder...");
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -19,6 +21,15 @@ builder.Services.AddScoped<ICareerService, CareerService>();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug() // log all messages
+    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day) 
+    .WriteTo.File("logs/error.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error, rollingInterval: RollingInterval.Day) 
+    .CreateLogger();
+Console.WriteLine("Middleware configured, starting app...");
+
+builder.Host.UseSerilog();
 
 var app = builder.Build();
 
@@ -51,5 +62,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
-
+Console.WriteLine("This line will never run.");
 app.Run();

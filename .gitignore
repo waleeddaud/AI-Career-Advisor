@@ -18,3 +18,5 @@ CareerAdvisorApp/appsettings.json
 *.temp
 *.bak
 *.swp
+
+logs/

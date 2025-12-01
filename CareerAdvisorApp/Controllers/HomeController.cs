@@ -15,12 +15,19 @@ public class HomeController : Controller
     }
     
     public IActionResult Index()
-    {
-        if (User.Identity != null && User.Identity.IsAuthenticated)
-        {
-            return RedirectToAction("Index", "Dashboard");
+    { 
+        try{
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+            return View();
         }
-        return View();
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error logging access to Home/Index");
+            return View();
+        }
     }
 
     [Authorize]
