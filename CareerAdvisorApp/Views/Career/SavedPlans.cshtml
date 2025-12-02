@@ -2,7 +2,7 @@
     ViewData["Title"] = "Saved Plans";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+@model List<CareerAdvisorApp.Models.CareerPlan>?
 <style>
     body {
         background-color: #8fbec2 !important;
@@ -132,7 +132,7 @@
     </div>
 
     <div class="row g-4">
-        @if(Model != null && Model?.Any())
+        @if(Model != null && Model.Any())
         {
             @foreach (var plan in Model)
             {
@@ -142,16 +142,16 @@
                             <div class="plan-icon">
                                 <i class="bi bi-briefcase-fill"></i>
                             </div>
-                            <h5 class="plan-title">@plan.Title</h5>
+                            <h5 class="plan-title">@plan.Id</h5>
                             <p class="plan-date">
                                 <i class="bi bi-calendar-check"></i>
-                                @plan.CreatedDate.ToString("MMMM dd, yyyy")
+                                @plan.CreatedAt?.ToString("MMMM dd, yyyy")
                             </p>
                             <div class="card-actions">
-                                <a asp-action="ViewPlan" asp-route-id="@plan.Id" class="btn btn-view">
-                                    <i class="bi bi-eye me-1"></i> View Plan
+                                <a asp-action="ViewPlan" asp-route-career_id="@plan.Id" class="btn btn-view">
+                                    <i class="bi bi-eye me-1"></i> View Plan @plan.Id
                                 </a>
-                                <a asp-action="DeletePlan" asp-route-id="@plan.Id" class="btn btn-delete">
+                                <a asp-action="DeletePlan" asp-route-career-id="@plan.Id" class="btn btn-delete">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>

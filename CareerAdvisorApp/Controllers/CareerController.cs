@@ -23,13 +23,12 @@ public class CareerController : Controller
         _userManager = userManager;
         _careerService = careerService;
     }
-    [Authorize]
+    [Authorize(Policy = "UserOnly")]
     public IActionResult DetailsForm()
     {
-        Console.WriteLine("Reached Career Details Form");
         return View();
     }
-    [Authorize]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GeneratePlan(CareerDetails careerDetails)
     {   
         string? plan = await _careerService.GenerateCareerPlanAsync(careerDetails);
@@ -38,10 +37,19 @@ public class CareerController : Controller
         return RedirectToAction("ViewPlan", new {career_id = career_id} );
     }
 
-    [Authorize]
+    [Authorize(Policy = "UserOnly")]
+    [HttpGet("Career/ViewPlan/{career_id}")]
     public async Task<IActionResult> ViewPlan(int career_id)
     {
-        string? TextToDisplay = _careerService.GetCareerPlanById(career_id);
+        string? userId = _userManager.GetUserId(User);
+
+        Console.WriteLine("Viewing plan with ID: " + career_id);
+        CareerPlan? plan = _careerService.GetCareerPlanById(career_id);
+        string TextToDisplay = plan?.PlanDetails;
+        if(plan == null || plan.UserId != userId)
+        {
+            TextToDisplay = "No plans found against this Career Id for this user.";
+        }
         try
         {
             var pipeline = new MarkdownPipelineBuilder()
@@ -62,14 +70,16 @@ public class CareerController : Controller
             return View();
         }
     }
-    [Authorize]
+    [Authorize(Policy = "UserOnly")]
     public IActionResult Chat()
     {
         return View();
     }
-    [Authorize]
+    [Authorize(Policy = "UserOnly")]
     public IActionResult SavedPlans()   
     {
-        return View();
+        string? userId = _userManager.GetUserId(User);
+        List<CareerPlan> plans = _careerService.GetAllCareerPlansByUserId(userId);
+        return View(plans);
     }
 }

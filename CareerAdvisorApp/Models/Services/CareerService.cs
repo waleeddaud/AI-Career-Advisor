@@ -62,11 +62,20 @@ public class CareerService : ICareerService
         int r = connection.ExecuteScalar<int>(sql, new { UserId = userId, PlanDetails = careerPlan });
         return r;
     }
-    public string GetCareerPlanById(int careerPlanId)
+    public CareerPlan? GetCareerPlanById(int careerPlanId)
     {
         using SqlConnection conn = new SqlConnection(_connectionString);
-        string sql = "SELECT PlanDetails FROM CareerPlan WHERE Id = @Id";
-        string? planDetails = conn.QuerySingleOrDefault<string>(sql, new { Id = careerPlanId });
-        return planDetails ?? "No plan found."; 
+        string sql = "SELECT * FROM CareerPlan WHERE Id = @Id";
+        CareerPlan? plan = conn.QuerySingleOrDefault<CareerPlan>(sql, new { Id = careerPlanId });
+        return plan;
+    }
+
+    public List<CareerPlan> GetAllCareerPlansByUserId(string? userId)
+    {
+        List<CareerPlan> res = new List<CareerPlan>();
+        using SqlConnection conn = new SqlConnection(_connectionString);
+        string sql = "SELECT * FROM CareerPlan WHERE UserId = @userId";
+        res = conn.Query<CareerPlan>(sql, new { userId = userId }).ToList();  
+        return res;
     }
 }

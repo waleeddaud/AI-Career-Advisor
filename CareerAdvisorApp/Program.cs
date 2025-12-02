@@ -51,7 +51,7 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day) 
     .WriteTo.File("logs/error.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error, rollingInterval: RollingInterval.Day) 
     .CreateLogger();
-
+builder.Logging.AddConsole();
 builder.Host.UseSerilog();
 
 var app = builder.Build();
@@ -79,11 +79,6 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.Use(async (context, next) =>
-{
-    Console.WriteLine($"User Authenticated: {context.User.Identity?.IsAuthenticated}");
-    await next();
-});
 
 app.MapControllerRoute(
     name: "default",
