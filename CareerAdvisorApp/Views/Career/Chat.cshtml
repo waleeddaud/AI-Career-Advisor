@@ -7,101 +7,257 @@
     body {
         background-color: #8fbec2 !important;
     }
-    .chat-container {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-    .chat-card {
-        background: white;
-        border-radius: 1rem;
-        overflow: hidden;
-    }
-    .chat-header {
-        background: linear-gradient(135deg, #8fbec2 0%, #78a9ad 100%);
+    
+    /* Minimal custom styles - only what Bootstrap doesn't provide */
+    .user-bubble {
+        background-color: #8fbec2;
         color: white;
-        padding: 1.5rem;
-        font-weight: 600;
-        font-size: 1.1rem;
-    }
-    #chatWindow {
-        background: #f8f9fa;
-        height: 450px;
-        overflow-y: auto;
-        padding: 1.5rem;
-    }
-    .user-message .badge {
-        background-color: #8fbec2 !important;
-        padding: 0.75rem 1rem;
         border-radius: 1rem 1rem 0 1rem;
-        font-size: 0.95rem;
-        font-weight: 500;
+        max-width: 70%;
     }
-    .ai-message .badge {
-        background-color: #e9ecef !important;
-        color: #212529 !important;
-        padding: 0.75rem 1rem;
+    
+    .ai-bubble {
+        background-color: #e9ecef;
+        color: #212529;
         border-radius: 1rem 1rem 1rem 0;
-        font-size: 0.95rem;
-        font-weight: 500;
+        max-width: 70%;
     }
-    .chat-footer {
-        background: white;
-        padding: 1.5rem;
-        border-top: 1px solid #dee2e6;
-    }
+    
     .chat-input {
-        border: 2px solid #e9ecef;
         border-radius: 2rem;
-        padding: 0.75rem 1.25rem;
     }
-    .chat-input:focus {
-        border-color: #8fbec2;
-        box-shadow: 0 0 0 0.2rem rgba(143, 190, 194, 0.25);
-    }
+    
     .btn-send {
         background-color: #8fbec2;
-        border: none;
         border-radius: 2rem;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        color: white;
     }
-    .btn-send:hover {
+    
+    .btn-send:hover:not(:disabled) {
         background-color: #78a9ad;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(143, 190, 194, 0.3);
     }
 </style>
 
-<div class="container mt-5 chat-container" style="margin-bottom: 150px;">
-    <div class="card chat-card shadow-lg border-0">
-        <div class="chat-header">AI Career Advisor Chat Mode</div>
+<div class="container mt-5 mb-5" style="max-width: 900px; margin-bottom: 150px !important;">
+    <div class="card shadow-lg border-0 rounded-4">
+        <!-- Header -->
+        <div class="card-header text-white fw-semibold p-4" 
+             style="background: linear-gradient(135deg, #8fbec2 0%, #78a9ad 100%); border-radius: 1rem 1rem 0 0;">
+            <i class="bi bi-chat-dots me-2"></i>AI Career Advisor - Live Chat
+        </div>
 
-        <div id="chatWindow">
-            @if(Model != null && Model?.Messages != null){
+        <!-- Chat Window -->
+        <div id="chatWindow" class="bg-light p-4 overflow-auto" style="height: 450px;">
+            <!-- Welcome Message -->
+            <div class="d-flex justify-content-start mb-3">
+                <div class="ai-bubble p-3">
+                    <i class="bi bi-robot"></i> Hello! I'm your AI Career Advisor. Ask me anything about career planning, skills, jobs, or career transitions!
+                </div>
+            </div>
+
+            @if(Model?.Messages != null){
                 @foreach (var msg in Model.Messages)
                 {
                     if (msg.IsUser)
                     {
-                        <div class="text-end mb-3 user-message">
-                            <span class="badge">@msg.Text</span>
+                        <div class="d-flex justify-content-end mb-3">
+                            <div class="user-bubble p-3 fw-normal">@msg.Text</div>
                         </div>
                     }
                     else
                     {
-                        <div class="text-start mb-3 ai-message">
-                            <span class="badge">@msg.Text</span>
+                        <div class="d-flex justify-content-start mb-3">
+                            <div class="ai-bubble p-3 fw-normal">@msg.Text</div>
                         </div>
                     }
                 }
             }
         </div>
 
-        <div class="chat-footer">
-            <form class="w-100 d-flex gap-2" asp-action="SendMessage" method="post">
-                <input type="text" name="Message" class="form-control chat-input flex-grow-1" placeholder="Type your message..." required />
-                <button class="btn btn-send">Send</button>
-            </form>
+        <!-- Footer / Input Area -->
+        <div class="card-footer bg-white border-top p-4">
+            <!-- Typing Indicator -->
+            <div id="typingIndicator" class="text-muted mb-2 small" style="display: none;">
+                <i class="bi bi-three-dots"></i> <em>AI is typing...</em>
+            </div>
+            
+            <!-- Input Form -->
+            <div class="d-flex gap-2">
+                <input type="text" 
+                       id="messageInput" 
+                       class="form-control chat-input flex-grow-1 border-2 px-4 py-2" 
+                       placeholder="Type your message..." 
+                       autocomplete="off" />
+                <button id="sendButton" 
+                        class="btn btn-send text-white fw-semibold px-4 py-2 border-0">
+                    <i class="bi bi-send me-1"></i>Send
+                </button>
+            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .withAutomaticReconnect()
+            .build();
+
+        let connectionId = null;
+        let currentAiMessageBubble = null;
+
+        // Helper: Scroll to bottom
+        function scrollToBottom() {
+            const chatWindow = document.getElementById("chatWindow");
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // Helper: Add user message
+        function addUserMessage(text) {
+            const chatWindow = document.getElementById("chatWindow");
+            
+            const wrapper = document.createElement("div");
+            wrapper.className = "d-flex justify-content-end mb-3";
+            
+            const bubble = document.createElement("div");
+            bubble.className = "user-bubble p-3 fw-normal";
+            bubble.textContent = text;
+            
+            wrapper.appendChild(bubble);
+            chatWindow.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        // Helper: Start AI message
+        function startAiMessage() {
+            const chatWindow = document.getElementById("chatWindow");
+            
+            const wrapper = document.createElement("div");
+            wrapper.className = "d-flex justify-content-start mb-3";
+            
+            const bubble = document.createElement("div");
+            bubble.className = "ai-bubble p-3 fw-normal";
+            bubble.textContent = "";
+            
+            wrapper.appendChild(bubble);
+            chatWindow.appendChild(wrapper);
+            currentAiMessageBubble = bubble;
+            scrollToBottom();
+        }
+
+        // Helper: Add error message
+        function addErrorMessage(error) {
+            const chatWindow = document.getElementById("chatWindow");
+            
+            const wrapper = document.createElement("div");
+            wrapper.className = "d-flex justify-content-start mb-3";
+            
+            const bubble = document.createElement("div");
+            bubble.className = "bg-danger text-white p-3 rounded-3";
+            bubble.style.maxWidth = "70%";
+            bubble.innerHTML = `<i class="bi bi-exclamation-triangle me-1"></i> ${error}`;
+            
+            wrapper.appendChild(bubble);
+            chatWindow.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        // SignalR: Receive token
+        connection.on("ReceiveToken", function (token) {
+            if (!currentAiMessageBubble) {
+                startAiMessage();
+            }
+            currentAiMessageBubble.textContent += token;
+            scrollToBottom();
+        });
+
+        // SignalR: Stream complete
+        connection.on("StreamComplete", function () {
+            currentAiMessageBubble = null;
+            document.getElementById("typingIndicator").style.display = "none";
+            document.getElementById("sendButton").disabled = false;
+            document.getElementById("messageInput").disabled = false;
+            document.getElementById("messageInput").focus();
+        });
+
+        // SignalR: Error
+        connection.on("ReceiveError", function (error) {
+            addErrorMessage(error);
+            currentAiMessageBubble = null;
+            document.getElementById("typingIndicator").style.display = "none";
+            document.getElementById("sendButton").disabled = false;
+            document.getElementById("messageInput").disabled = false;
+        });
+
+        // Start connection
+        connection.start()
+            .then(function () {
+                connectionId = connection.connectionId;
+                console.log("✅ SignalR Connected. ID:", connectionId);
+            })
+            .catch(function (err) {
+                console.error("❌ Connection Error:", err);
+                addErrorMessage("Failed to connect. Please refresh the page.");
+            });
+
+        // Send message
+        function sendMessage() {
+            const messageInput = document.getElementById("messageInput");
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+            
+            if (!connectionId) {
+                addErrorMessage("Not connected. Please refresh.");
+                return;
+            }
+
+            addUserMessage(message);
+            messageInput.value = "";
+            
+            document.getElementById("sendButton").disabled = true;
+            messageInput.disabled = true;
+            document.getElementById("typingIndicator").style.display = "block";
+
+            fetch("/Career/SendChatMessage", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: message,
+                    connectionId: connectionId
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Server error");
+                return response.json();
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                addErrorMessage("Failed to send. Please try again.");
+                document.getElementById("typingIndicator").style.display = "none";
+                document.getElementById("sendButton").disabled = false;
+                messageInput.disabled = false;
+            });
+        }
+
+        // Event listeners
+        document.getElementById("sendButton").addEventListener("click", sendMessage);
+        document.getElementById("messageInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Reconnection handlers
+        connection.onreconnecting(() => {
+            console.log(" Reconnecting...");
+        });
+
+        connection.onreconnected(() => {
+            console.log(" Reconnected!");
+            connectionId = connection.connectionId;
+        });
+    </script>
+}

@@ -5,6 +5,8 @@ using Google.GenAI;
 using Google.GenAI.Types;
 using Dapper;
 using System.Configuration;
+using Microsoft.AspNetCore.SignalR;
+
 namespace CareerAdvisorApp.Models.Services;
 public class CareerService : ICareerService
 {
@@ -77,5 +79,57 @@ public class CareerService : ICareerService
         string sql = "SELECT * FROM CareerPlan WHERE UserId = @userId";
         res = conn.Query<CareerPlan>(sql, new { userId = userId }).ToList();  
         return res;
+    }
+
+    public async Task StreamCareerChatResponseAsync(string userMessage, string connectionId, IHubContext<CareerAdvisorApp.Hubs.ChatHub> hubContext)
+    {
+        try
+        {
+            string _apiKey = _configuration.GetSection("GeminiSettings")["apikey1"] 
+                ?? _configuration.GetSection("GeminiSettings")["apikey2"] 
+                ?? throw new Exception("API Key not found in configuration");
+            
+            var client = new Client(apiKey: _apiKey);
+
+            // System prompt for career advisor behavior
+            string systemPrompt = @"You are an expert AI Career Advisor. Your role is to:
+- Provide personalized career guidance and advice
+- Help users explore career paths based on their skills and interests
+- Suggest learning resources and skill development paths
+- Answer questions about industries, job roles, and career transitions
+- Be supportive, professional, and encouraging
+Keep responses concise, practical, and actionable.";
+
+            string fullPrompt = $"{systemPrompt}\n\nUser Question: {userMessage}";
+
+            // Use streaming API
+            var streamingResponse = client.Models.GenerateContentStreamAsync(
+                model: "gemini-2.5-flash",
+                contents: fullPrompt
+            );
+
+            await foreach (var chunk in streamingResponse)
+            {
+                var token = chunk?.Candidates?[0]?.Content?.Parts?[0]?.Text;
+                
+                if (!string.IsNullOrEmpty(token))
+                {
+                    // Send each token to the specific client
+                    await hubContext.Clients.Client(connectionId).SendAsync("ReceiveToken", token);
+                    
+                    // Small delay for better visual effect (optional)
+                    await Task.Delay(10);
+                }
+            }
+
+            // Signal completion
+            await hubContext.Clients.Client(connectionId).SendAsync("StreamComplete");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in streaming: {ex.Message}");
+            await hubContext.Clients.Client(connectionId).SendAsync("StreamError", 
+                "Sorry, I encountered an error. Please try again.");
+        }
     }
 }

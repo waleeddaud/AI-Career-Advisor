@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.SignalR;
+
 namespace CareerAdvisorApp.Models.Interfaces;
 public interface ICareerService
 {
@@ -5,4 +7,5 @@ public interface ICareerService
     public int SaveCareerPlan(string? careerPlan, string? userId);
     public CareerPlan? GetCareerPlanById(int careerPlanId);
     public List<CareerPlan> GetAllCareerPlansByUserId(string? userId);
+    public Task StreamCareerChatResponseAsync(string userMessage, string connectionId, IHubContext<CareerAdvisorApp.Hubs.ChatHub> hubContext);
 }
