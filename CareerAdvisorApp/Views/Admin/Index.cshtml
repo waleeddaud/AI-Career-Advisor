@@ -1,32 +1,138 @@
+@model List<UserViewModel>
 @{
     ViewData["Title"] = "Admin Users Panel";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5">
-    <h3 class="fw-bold mb-4">Registered Users</h3>
+<div class="container mt-5 mb-5" style="margin-bottom: 150px !important;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">
+            <i class="bi bi-people-fill me-2"></i>Registered Users
+        </h2>
+        <span class="badge bg-primary fs-6">Total: @Model.Count</span>
+    </div>
 
-    <table class="table table-striped table-hover shadow-sm rounded-4">
-        <thead class="table-dark">
-            <tr>
-                <th>#</th>
-                <th>Email</th>
-                <th>Role</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if(Model != null && Model?.Count > 0)
-            {
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-                @foreach (var user in Model)
-                {
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Users Table -->
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
                     <tr>
-                        <td>@user.Id</td>
-                        <td>@user.Email</td>
-                        <td>@user.Role</td>
+                        <th scope="col" class="px-4 py-3">User ID</th>
+                        <th scope="col" class="px-4 py-3">Username</th>
+                        <th scope="col" class="px-4 py-3">Email</th>
+                        <th scope="col" class="px-4 py-3">Role</th>
+                        <th scope="col" class="px-4 py-3 text-center">Actions</th>
                     </tr>
-                }
-            }
-        </tbody>
-    </table>
+                </thead>
+                <tbody>
+                    @if(Model != null && Model.Count > 0)
+                    {
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td class="px-4 py-3">
+                                    <small class="text-muted">@user.Id.Substring(0, Math.Min(8, user.Id.Length))...</small>
+                                </td>
+                                <td class="px-4 py-3 fw-semibold">@user.UserName</td>
+                                <td class="px-4 py-3">@user.Email</td>
+                                <td class="px-4 py-3">
+                                    @if(user.Role == "Admin")
+                                    {
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-shield-fill-check me-1"></i>Admin
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-person-fill me-1"></i>User
+                                        </span>
+                                    }
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <button type="button" 
+                                            class="btn btn-danger btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal"
+                                            data-user-id="@user.Id"
+                                            data-user-email="@user.Email">
+                                        <i class="bi bi-trash-fill me-1"></i>Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="bi bi-inbox fs-1 text-muted"></i>
+                                <p class="text-muted mt-2">No users found</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Are you sure you want to delete user <strong id="userEmailDisplay"></strong>?</p>
+                <p class="text-danger small mt-2 mb-0">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" asp-action="DeleteUser" class="d-inline">
+                    <input type="hidden" name="userId" id="userIdInput" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash-fill me-1"></i>Delete User
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Handle delete modal data
+        const deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const userId = button.getAttribute('data-user-id');
+            const userEmail = button.getAttribute('data-user-email');
+            
+            document.getElementById('userIdInput').value = userId;
+            document.getElementById('userEmailDisplay').textContent = userEmail;
+        });
+    </script>
+}
