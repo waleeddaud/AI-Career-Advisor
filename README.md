@@ -1,2 +1,2 @@
 # AI Career Advisor
-40 Percent Backend
+70 Percent Backend
