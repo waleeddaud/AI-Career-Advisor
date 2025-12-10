@@ -33,12 +33,28 @@ public class HomeController : Controller
     [Authorize]
     public IActionResult Privacy()
     {
-        return View();
+        try
+        {
+            return View();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading Privacy page");
+            return RedirectToAction("Index");
+        }
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        try
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading Error page");
+            return View(new ErrorViewModel { RequestId = "Unknown" });
+        }
     }
 }

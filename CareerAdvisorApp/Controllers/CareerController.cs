@@ -29,32 +29,51 @@ public class CareerController : Controller
     [Authorize(Policy = "UserOnly")]
     public IActionResult DetailsForm()
     {
-        return View();
+        try
+        {
+            return View();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading details form");
+            TempData["ErrorMessage"] = "An error occurred while loading the form. Please try again.";
+            return RedirectToAction("Index", "Home");
+        }
     }
     [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GeneratePlan(CareerDetails careerDetails)
-    {   
-        string? plan = await _careerService.GenerateCareerPlanAsync(careerDetails);
-        string? userId = _userManager.GetUserId(User);
-        int career_id = _careerService.SaveCareerPlan(plan, userId);
-        return RedirectToAction("ViewPlan", new {career_id = career_id} );
+    {
+        try
+        {
+            string? plan = await _careerService.GenerateCareerPlanAsync(careerDetails);
+            string? userId = _userManager.GetUserId(User);
+            int career_id = _careerService.SaveCareerPlan(plan, userId);
+            return RedirectToAction("ViewPlan", new {career_id = career_id} );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating career plan");
+            TempData["ErrorMessage"] = "Failed to generate career plan. Please try again.";
+            return RedirectToAction("DetailsForm");
+        }
     }
 
     [Authorize(Policy = "UserOnly")]
     [HttpGet("Career/ViewPlan/{career_id}")]
     public async Task<IActionResult> ViewPlan(int career_id)
     {
-        string? userId = _userManager.GetUserId(User);
-
-        Console.WriteLine("Viewing plan with ID: " + career_id);
-        CareerPlan? plan = _careerService.GetCareerPlanById(career_id);
-        string TextToDisplay = plan?.PlanDetails ?? "No plans found against this Career Id for this user.";
-        if(plan == null || plan.UserId != userId)
-        {
-            TextToDisplay = "No plans found against this Career Id for this user.";
-        }
         try
         {
+            string? userId = _userManager.GetUserId(User);
+
+            _logger.LogInformation("Viewing plan with ID: {CareerPlanId}", career_id);
+            CareerPlan? plan = _careerService.GetCareerPlanById(career_id);
+            string TextToDisplay = plan?.PlanDetails ?? "No plans found against this Career Id for this user.";
+            if(plan == null || plan.UserId != userId)
+            {
+                TextToDisplay = "No plans found against this Career Id for this user.";
+            }
+
             var pipeline = new MarkdownPipelineBuilder()
                         .UseAdvancedExtensions()
                         .Build();
@@ -67,7 +86,7 @@ public class CareerController : Controller
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error displaying plan: {ex.Message}");
+            _logger.LogError(ex, "Error displaying career plan with ID: {CareerPlanId}", career_id);
             ViewBag.HtmlPlan = null;
             ViewBag.ErrorMessage = "An error occurred while displaying your career plan. Please try again later.";
             return View();
@@ -76,14 +95,32 @@ public class CareerController : Controller
     [Authorize(Policy = "UserOnly")]
     public IActionResult Chat()
     {
-        return View();
+        try
+        {
+            return View();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading chat page");
+            TempData["ErrorMessage"] = "An error occurred while loading the chat. Please try again.";
+            return RedirectToAction("Index", "Home");
+        }
     }
     [Authorize(Policy = "UserOnly")]
     public IActionResult SavedPlans()   
     {
-        string? userId = _userManager.GetUserId(User);
-        List<CareerPlan> plans = _careerService.GetAllCareerPlansByUserId(userId);
-        return View(plans);
+        try
+        {
+            string? userId = _userManager.GetUserId(User);
+            List<CareerPlan> plans = _careerService.GetAllCareerPlansByUserId(userId);
+            return View(plans);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading saved plans");
+            TempData["ErrorMessage"] = "An error occurred while loading your saved plans. Please try again.";
+            return View(new List<CareerPlan>());
+        }
     }
 
     [HttpPost]
@@ -102,7 +139,6 @@ public class CareerController : Controller
                 return BadRequest(new { error = "Connection ID is required" });
             }
 
-            // Stream response to client via SignalR
             await _careerService.StreamCareerChatResponseAsync(
                 request.Message, 
                 request.ConnectionId, 
@@ -116,11 +152,5 @@ public class CareerController : Controller
             _logger.LogError(ex, "Error processing chat message");
             return StatusCode(500, new { error = "Failed to process message" });
         }
-    }
-
-    public class ChatMessageRequest
-    {
-        public string Message { get; set; } = string.Empty;
-        public string ConnectionId { get; set; } = string.Empty;
     }
 }
