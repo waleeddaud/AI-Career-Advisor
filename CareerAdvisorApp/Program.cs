@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using CareerAdvisorApp.Models.Interfaces;
 using CareerAdvisorApp.Models.Services;
 using CareerAdvisorApp.Data;
+using CareerAdvisorApp.Hubs;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -86,5 +87,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
-app.MapHub<CareerAdvisorApp.Hubs.ChatHub>("/chatHub");
+app.MapHub<ChatHub>("/chatHub");
 app.Run();
