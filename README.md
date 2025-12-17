@@ -1,8 +1,7 @@
 # AI Career Advisor
-70 Percent Backend
+85% Percent Backend
 
-Tasks 
+Tasks to do
 Integration of SignalR 
-AdminPanel Backend Written
-Added logging using Serilog
-Added single Unit test for _service.createPrompt()
+Unit tests
+View Component
