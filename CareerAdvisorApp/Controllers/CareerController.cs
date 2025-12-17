@@ -29,6 +29,7 @@ public class CareerController : Controller
     [Authorize(Policy = "UserOnly")]
     public IActionResult DetailsForm()
     {
+        Response.Cookies.Delete("plan_generated");
         try
         {
             return View();
@@ -45,9 +46,34 @@ public class CareerController : Controller
     {
         try
         {
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTimeOffset.Now.AddDays(30),
+                HttpOnly = false, // JavaScript needs to read it
+                IsEssential = true
+            };
+            
+            Response.Cookies.Append("educationLevel", careerDetails.EducationLevel ?? "", cookieOptions);
+            Response.Cookies.Append("skills", careerDetails.Skills ?? "", cookieOptions);
+            Response.Cookies.Append("interests", careerDetails.Interests ?? "", cookieOptions);
+            Response.Cookies.Append("careerGoals", careerDetails.CareerGoals ?? "", cookieOptions);
+            Response.Cookies.Append("experience", careerDetails.Experience ?? "", cookieOptions);
+            Response.Cookies.Append("industry", careerDetails.Industry ?? "", cookieOptions);
+            Response.Cookies.Append("workStyle", careerDetails.WorkStyle ?? "", cookieOptions);
+            Response.Cookies.Append("salary", careerDetails.Salary ?? "", cookieOptions);
+            Response.Cookies.Append("timeline", careerDetails.Timeline ?? "", cookieOptions);
+            
             string? plan = await _careerService.GenerateCareerPlanAsync(careerDetails);
             string? userId = _userManager.GetUserId(User);
             int career_id = _careerService.SaveCareerPlan(plan, userId);
+            // here the plan is generated successfully so the cookie plan_generated should be set to true here 
+            // If plan already generated set the loader to false for next time 
+            Response.Cookies.Append("plan_generated", "true", new CookieOptions
+        {
+            Expires = DateTimeOffset.Now.AddDays(1),
+            HttpOnly = false,
+            IsEssential = true
+        });
             return RedirectToAction("ViewPlan", new {career_id = career_id} );
         }
         catch (Exception ex)

@@ -198,12 +198,58 @@
 </div>
 
 <script>
+    // Cookie helper function
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+        }
+        return null;
+    }
+
     // When the page loads
     document.addEventListener("DOMContentLoaded", function() {
+        // 1. Check plan_generated cookie to control loader visibility
+        const planGenerated = getCookie("plan_generated");
+        const loader = document.getElementById("loadingOverlay");
+        
+        if (planGenerated === "true") {
+            // If plan was generated, hide the loader
+            loader.style.display = "none";
+        } else {
+            // If no plan generated, ensure loader is hidden initially
+            loader.style.display = "none";
+        }
+
+        // 2. Populate form fields from cookies
+        const educationLevel = getCookie("educationLevel");
+        const skills = getCookie("skills");
+        const interests = getCookie("interests");
+        const careerGoals = getCookie("careerGoals");
+        const experience = getCookie("experience");
+        const industry = getCookie("industry");
+        const workStyle = getCookie("workStyle");
+        const salary = getCookie("salary");
+        const timeline = getCookie("timeline");
+
+        // Set form values if cookies exist
+        if (educationLevel) document.getElementById("EducationLevel").value = educationLevel;
+        if (skills) document.getElementById("Skills").value = skills;
+        if (interests) document.getElementById("Interests").value = interests;
+        if (careerGoals) document.getElementById("CareerGoals").value = careerGoals;
+        if (experience) document.getElementById("Experience").value = experience;
+        if (industry) document.getElementById("Industry").value = industry;
+        if (workStyle) document.getElementById("WorkStyle").value = workStyle;
+        if (salary) document.getElementById("Salary").value = salary;
+        if (timeline) document.getElementById("Timeline").value = timeline;
+
+        // 3. Show loader on form submit
         var form = document.getElementById("careerForm");
         form.addEventListener("submit", function() {
-            // Show the overlay when form is submitted
-            document.getElementById("loadingOverlay").style.display = "flex";
+            loader.style.display = "flex";
         });
     });
 </script>
