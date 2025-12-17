@@ -1,0 +1,140 @@
+@model CareerAdvisorApp.Models.UserStatsViewModel
+
+<style>
+    .stats-container {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .stats-title {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .stats-title i {
+        color: #8fbec2;
+    }
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    .stat-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+    .stat-label {
+        color: #6c757d;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .stat-value {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+    .stat-value.highlight {
+        color: #8fbec2;
+    }
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #8fbec2 0%, #78a9ad 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+    .no-plans-message {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+    }
+    .no-plans-message i {
+        font-size: 3rem;
+        color: #8fbec2;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="stats-container">
+    <h5 class="stats-title">
+        <i class="bi bi-graph-up-arrow"></i>
+        Your Career Stats
+    </h5>
+
+    @if (Model.TotalPlans > 0)
+    {
+        <div class="stat-item">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <span class="stat-label">Total Plans Created</span>
+            </div>
+            <span class="stat-value highlight">@Model.TotalPlans</span>
+        </div>
+
+        <div class="stat-item">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+                <span class="stat-label">Plans This Month</span>
+            </div>
+            <span class="stat-value">@Model.PlansThisMonth</span>
+        </div>
+
+        <div class="stat-item">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <span class="stat-label">Last Plan Created</span>
+            </div>
+            <span class="stat-value">
+                @if (Model.LastPlanDate.HasValue)
+                {
+                    @Model.LastPlanDate.Value.ToString("MMM dd, yyyy")
+                }
+                else
+                {
+                    <text>N/A</text>
+                }
+            </span>
+        </div>
+
+        <div class="stat-item">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <span class="stat-label">Days Active</span>
+            </div>
+            <span class="stat-value">@Model.DaysActive</span>
+        </div>
+    }
+    else
+    {
+        <div class="no-plans-message">
+            <i class="bi bi-clipboard-x"></i>
+            <h6>No plans created yet</h6>
+            <p class="small text-muted">Start your career journey by creating your first plan!</p>
+            <a href="/Career/DetailsForm" class="btn btn-sm btn-outline-primary mt-2">
+                <i class="bi bi-plus-circle me-1"></i>Create Your First Plan
+            </a>
+        </div>
+    }
+</div>
