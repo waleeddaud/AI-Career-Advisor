@@ -1,5 +1,7 @@
 # AI Career Advisor
 
+🚀 **[Live Demo](https://careeradvisor-arc7cpg5drhwh5dk.southeastasia-01.azurewebsites.net/)** | ✨ Experience the AI Career Advisor in action!
+
 An intelligent web application that provides personalized career guidance and development plans using Google's Gemini AI. The system helps users map out their career paths based on their education, skills, interests, and goals.
 
 ## Features
