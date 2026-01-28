@@ -58,10 +58,10 @@ builder.Logging.AddConsole();
 builder.Host.UseSerilog();
 
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    await IdentitySeed.SeedRolesAndAdmin(scope.ServiceProvider);
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     await IdentitySeed.SeedRolesAndAdmin(scope.ServiceProvider);
+// }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
